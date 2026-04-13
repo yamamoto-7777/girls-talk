@@ -1,6 +1,7 @@
 # Lambda
 lambda/__pycache__/
 lambda/*.zip
+*.zip
 lambda/.env
 
 # Terraform

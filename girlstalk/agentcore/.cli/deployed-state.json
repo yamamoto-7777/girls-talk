@@ -1,0 +1,22 @@
+{
+  "targets": {
+    "default": {
+      "resources": {
+        "runtimes": {
+          "GirlsTalsAgent": {
+            "runtimeId": "girlstalk_GirlsTalsAgent-wwETEV9oCt",
+            "runtimeArn": "arn:aws:bedrock-agentcore:ap-northeast-1:452470899587:runtime/girlstalk_GirlsTalsAgent-wwETEV9oCt",
+            "roleArn": "arn:aws:iam::452470899587:role/AgentCore-girlstalk-defau-ApplicationAgentGirlsTals-xU7jurXhRu1i"
+          }
+        },
+        "memories": {
+          "GirlsTalsAgentMemory": {
+            "memoryId": "girlstalk_GirlsTalsAgentMemory-fZhqHG4SRd",
+            "memoryArn": "arn:aws:bedrock-agentcore:ap-northeast-1:452470899587:memory/girlstalk_GirlsTalsAgentMemory-fZhqHG4SRd"
+          }
+        },
+        "stackName": "AgentCore-girlstalk-default"
+      }
+    }
+  }
+}
