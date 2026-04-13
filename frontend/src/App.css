@@ -1,0 +1,48 @@
+.app-container {
+  width: 100%;
+  height: 100svh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  overflow: hidden;
+}
+
+.app-header {
+  padding: 16px 20px 12px;
+  background: #fff;
+  border-bottom: 1px solid #e5e4e7;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* スマホ: ヘッダーをコンパクトに */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 12px 16px 10px;
+  }
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #08060d;
+  margin: 0 0 2px;
+  letter-spacing: -0.3px;
+}
+
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 18px;
+  }
+}
+
+
+.app-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+

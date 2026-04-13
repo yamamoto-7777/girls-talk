@@ -1,0 +1,14 @@
+# Lambda
+lambda/__pycache__/
+lambda/*.zip
+lambda/.env
+
+# Terraform
+infra/.terraform/
+infra/*.tfstate*
+infra/.terraform.lock.hcl
+
+# General
+.DS_Store
+node_modules/
+.playwright-mcp/
