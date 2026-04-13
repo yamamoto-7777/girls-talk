@@ -37,7 +37,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# Bedrock呼び出し権限
+# Bedrock AgentCore Runtime 呼び出し権限
 resource "aws_iam_role_policy" "bedrock_invoke" {
   name = "${var.project_name}-${var.environment}-bedrock-invoke"
   role = aws_iam_role.lambda_exec.id
@@ -48,9 +48,12 @@ resource "aws_iam_role_policy" "bedrock_invoke" {
       {
         Effect = "Allow"
         Action = [
-          "bedrock:InvokeModel",
+          "bedrock-agentcore:InvokeAgentRuntime",
         ]
-        Resource = "*"
+        Resource = [
+          var.agentcore_runtime_arn,
+          "${var.agentcore_runtime_arn}/*",
+        ]
       }
     ]
   })
@@ -99,6 +102,7 @@ resource "aws_lambda_function" "chat_handler" {
     variables = {
       VTUBER_PHASES_TABLE   = var.vtuber_phases_table_name
       VTUBER_SESSIONS_TABLE = var.vtuber_sessions_table_name
+      AGENTCORE_RUNTIME_ARN = var.agentcore_runtime_arn
     }
   }
 

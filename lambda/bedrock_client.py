@@ -2,46 +2,50 @@
 Bedrock 呼び出しクライアント
 """
 
-import json
+import logging
+
 import boto3
 
-# boto3 は Lambda Python ランタイムに標準同梱
-client = boto3.client("bedrock-runtime", region_name="ap-northeast-1")
+logger = logging.getLogger(__name__)
 
 # Claude Sonnet 4.6 - JP クロスリージョン推論プロファイル（Tokyo/Osaka）
 MODEL_ID = "jp.anthropic.claude-sonnet-4-6"
 
+# boto3 は Lambda Python ランタイムに標準同梱
+# モジュールレベルで初期化（コールドスタート対策）
+client = boto3.client("bedrock-runtime", region_name="ap-northeast-1")
 
-def invoke_bedrock(system_prompt: str, messages: list, max_tokens: int = 512) -> str:
+
+def invoke_bedrock(
+    system_prompt: str,
+    messages: list,
+    session_id: str,
+    max_tokens: int = 512,
+) -> str:
     """
-    Bedrock Claude にメッセージを送り、応答テキスト全文を返す
-
-    Args:
-        system_prompt: AIのシステムプロンプト
-        messages: 会話履歴 [{"role": str, "content": str}, ...]
-        max_tokens: 最大トークン数（デフォルト: 512）
-
-    Returns:
-        応答テキスト
+    Bedrock Claude にメッセージを送り、応答テキスト全文を返す。
+    session_id は将来の AgentCore Memory 統合のために受け取るが、現在は未使用。
     """
-    body = json.dumps(
-        {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_tokens,
-            "system": system_prompt,
-            "messages": messages,
-        }
-    )
-
-    response = client.invoke_model(
+    response = client.converse(
         modelId=MODEL_ID,
-        contentType="application/json",
-        accept="application/json",
-        body=body,
+        system=[{"text": system_prompt}],
+        messages=messages,
+        inferenceConfig={"maxTokens": max_tokens},
     )
 
-    decoded = json.loads(response["body"].read())
-    content = decoded.get("content", [])
-    if content and len(content) > 0:
-        return content[0].get("text", "")
-    return ""
+    output = response.get("output", {})
+    message = output.get("message", {})
+    content = message.get("content", [])
+
+    text_parts = [
+        block.get("text", "")
+        for block in content
+        if isinstance(block, dict) and block.get("text")
+    ]
+    result = "".join(text_parts)
+
+    if not result:
+        logger.error("Bedrock converse から空のレスポンスが返されました: %s", response)
+        raise ValueError("Bedrock から空のレスポンスが返されました")
+
+    return result

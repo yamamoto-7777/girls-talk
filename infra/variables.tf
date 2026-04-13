@@ -15,3 +15,9 @@ variable "environment" {
   type        = string
   default     = "dev"
 }
+
+variable "agentcore_runtime_arn" {
+  description = "Bedrock AgentCore Runtime の ARN"
+  type        = string
+  default     = "arn:aws:bedrock-agentcore:ap-northeast-1:452470899587:runtime/girlstalk_GirlsTalsAgent-wwETEV9oCt"
+}

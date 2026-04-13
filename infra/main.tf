@@ -41,6 +41,7 @@ module "lambda" {
   vtuber_phases_table_arn    = module.dynamodb.vtuber_phases_table_arn
   vtuber_sessions_table_name = module.dynamodb.vtuber_sessions_table_name
   vtuber_sessions_table_arn  = module.dynamodb.vtuber_sessions_table_arn
+  agentcore_runtime_arn      = var.agentcore_runtime_arn
 }
 
 # API Gateway モジュール

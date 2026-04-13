@@ -27,3 +27,8 @@ variable "vtuber_sessions_table_arn" {
   description = "VTuberセッションテーブルのARN"
   type        = string
 }
+
+variable "agentcore_runtime_arn" {
+  description = "Bedrock AgentCore Runtime の ARN"
+  type        = string
+}

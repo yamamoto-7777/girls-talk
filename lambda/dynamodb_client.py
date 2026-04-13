@@ -3,6 +3,7 @@ DynamoDB クライアント — VTuber フェーズ・セッション管理
 """
 
 import os
+import time
 import boto3
 from boto3.dynamodb.conditions import Key
 
@@ -45,6 +46,31 @@ def get_session(session_id: str) -> dict:
         "phase_turn_count": int(item.get("phase_turn_count", _DEFAULT_SESSION["phase_turn_count"])),
         "total_turn_count": int(item.get("total_turn_count", _DEFAULT_SESSION["total_turn_count"])),
     }
+
+
+def update_session_turn_counts(session_id: str, phase_turn_count: int, total_turn_count: int) -> None:
+    """
+    セッションのターンカウントを更新する。
+    current_phase_id は変更しない（フェーズ遷移はプログラムで行わない設計）。
+    セッションが存在しない場合は opening フェーズで新規作成する。
+    TTL は 24 時間後に設定する。
+    """
+    ttl = int(time.time()) + 86400  # 24時間後
+
+    _sessions_table.update_item(
+        Key={"session_id": session_id},
+        UpdateExpression=(
+            "SET phase_turn_count = :ptc, total_turn_count = :ttc, #ttl_attr = :ttl, "
+            "current_phase_id = if_not_exists(current_phase_id, :default_phase)"
+        ),
+        ExpressionAttributeNames={"#ttl_attr": "ttl"},
+        ExpressionAttributeValues={
+            ":ptc": phase_turn_count,
+            ":ttc": total_turn_count,
+            ":ttl": ttl,
+            ":default_phase": _DEFAULT_SESSION["current_phase_id"],
+        },
+    )
 
 
 def get_phase(phase_id: str) -> dict | None:

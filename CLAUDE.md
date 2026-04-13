@@ -37,7 +37,7 @@ girls_talk/
 | スタイリング | CSS Modules |
 | 状態管理 | useReducer のみ（外部ライブラリなし） |
 | バックエンド | Python 3.12 + AWS Lambda |
-| AI基盤 | AWS Bedrock + Claude Sonnet 4.6 |
+| AI基盤 | AWS Bedrock AgentCore Runtime + Claude Sonnet 4.6（会話履歴はAgentCoreメモリで保持） |
 | API | AWS API Gateway REST API（東京リージョン） |
 | DB | AWS DynamoDB（オンデマンドキャパシティ） |
 | インフラ | Terraform >= 1.5（S3バックエンド） |
@@ -79,11 +79,11 @@ cd lambda && VTUBER_PHASES_TABLE=<テーブル名> python vtuber_seed.py
 ```
 [ユーザー] トピック入力 → 「開始」ボタン押下
   → [useVTuberConversation] sessionId(UUID)を生成
-  → [fetch] POST /chat/vtuber { sessionId, currentSpeaker, conversationHistory(直近5件) }
+  → [fetch] POST /chat/vtuber { sessionId }
   → [API Gateway] → [Lambda handler.py] → パスルーティング → [vtuber_handler.py]
   → [dynamodb_client.py] セッション状態取得（現在フェーズ）
   → [dynamodb_client.py] フェーズ定義取得（プロンプト）
-  → [bedrock_client.py] Claude Sonnet 4.6 呼び出し
+  → [bedrock_client.py] Bedrock AgentCore Runtime 呼び出し（会話履歴はAgentCoreのメモリで保持）
   → レスポンス { speaker, content }
   → フロント：表示 → 次リクエスト（最大10回 or 停止ボタンで中断）
 ```
@@ -119,10 +119,10 @@ cd lambda && VTUBER_PHASES_TABLE=<テーブル名> python vtuber_seed.py
 
 ### POST /chat/vtuber
 
-- リクエスト: `{ sessionId: string, conversationHistory: Message[] }`
+- リクエスト: `{ sessionId: string }`
 - レスポンス成功: `{ speaker: string, content: string }`
 - レスポンスエラー: `{ error: string }`
-- Lambda処理: DynamoDBからセッション状態・フェーズプロンプトを取得 → Bedrock呼び出し
+- Lambda処理: DynamoDBからセッション状態・フェーズプロンプトを取得 → Bedrock AgentCore Runtime呼び出し（会話履歴はAgentCoreのメモリで自動保持）
 
 ## 設計方針
 
